@@ -27,15 +27,18 @@ class PizzaService:
         order = self.db.find_order(order_id)
         if not order:
             raise ValueError("Заказ не найден")
+        if order.order_status != OrderStatus.NEW:
+            raise ValueError("Заказ нельзя изменять после подтверждения")
 
-        order.pizza_ids.append(pizza.pizza_id)
+        order.pizzas.append(pizza)
         self.db.save_order(order)
 
     def remove_pizza(self, order_id: str, pizza_id: str):
         order = self.db.find_order(order_id)
         if not order:
             raise ValueError("Заказ не найден")
-
+        if order.order_status != OrderStatus.NEW:
+            raise ValueError("Заказ нельзя изменять после подтверждения")
         if pizza_id in order.pizza_ids:
             order.pizza_ids.remove(pizza_id)
             self.db.save_order(order)
@@ -46,6 +49,8 @@ class PizzaService:
         order = self.db.find_order(order_id)
         if not order:
             raise ValueError("Заказ не найден")
+        if order.order_status != OrderStatus.NEW:
+            raise ValueError("Заказ нельзя изменять после подтверждения")
 
         order.address = new_address
         self.db.save_order(order)

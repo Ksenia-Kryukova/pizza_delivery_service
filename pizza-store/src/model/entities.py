@@ -22,10 +22,10 @@ class User:
 
 class Order:
     """Класс для хранения информации о заказе"""
-    def __init__(self, order_id: str, user_id: str, pizza_ids: List[str], address: str):
+    def __init__(self, order_id: str, user_id: str, pizzas: List['Pizza'], address: str):
         self.order_id = order_id
         self.user_id = user_id
-        self.pizza_ids = pizza_ids
+        self.pizzas = pizzas
         self.address = address
         self.order_status = OrderStatus.NEW
         self.paid = False
