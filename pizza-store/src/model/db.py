@@ -40,24 +40,19 @@ class InMemDb(Db):
         self.toppings = dict()
 
     def find_user(self, user_id: str) -> User:
-        user = self.users.get(user_id, "Такого пользователя не существует")
-        return user
+        return self.users.get(user_id)
 
     def find_order(self, order_id: str) -> Order:
-        order = self.orders.get(order_id, "Такого заказа не существует")
-        return order
+        return self.orders.get(order_id)
 
     def find_pizza(self, pizza_id: str) -> Pizza:
-        pizza = self.pizzas.get(pizza_id, "Такой пиццы не существует")
-        return pizza
+        return self.pizzas.get(pizza_id)
 
     def find_topping(self, topping_id: str) -> Topping:
-        topping = self.toppings.get(topping_id, "Такого топпинга не существует")
-        return topping
+        return self.toppings.get(topping_id)
 
     def find_base_pizza(self, base_pizza_id: str) -> BasePizza:
-        base_pizza = self.base_pizzas.get(base_pizza_id, "Такой пиццы не существует")
-        return base_pizza
+        return self.base_pizzas.get(base_pizza_id)
 
     def add_user(self, user: User):
         if user.user_id not in self.users:
