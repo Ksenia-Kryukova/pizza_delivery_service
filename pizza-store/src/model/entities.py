@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import List
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, String, Integer, Float, Boolean, ARRAY, ForeignKey
+from sqlalchemy.orm import declarative_base
+from sqlalchemy import Column, String, Integer, Float, Boolean, ARRAY, ForeignKey, Enum as SqlEnum
 from sqlalchemy.orm import relationship
 from typing import Any
 
@@ -22,7 +22,7 @@ class OrderStatus(Enum):
 class User(Base):
     """Класс для хранения информации о заказчике"""
     __tablename__ = 'users'
-    user_id = Column(String(20), primary_key=True)
+    user_id = Column(String(40), primary_key=True)
     name = Column(String(50))
     phone_number = Column(Integer)
 
@@ -35,11 +35,11 @@ class User(Base):
 class Order(Base):
     """Класс для хранения информации о заказе"""
     __tablename__ = 'orders'
-    order_id = Column(String(20), primary_key=True)
-    user_id = Column(String(20))
+    order_id = Column(String(40), primary_key=True)
+    user_id = Column(String(40))
     pizzas = relationship("Pizza", secondary="order_pizza")
     address = Column(String(100))
-    order_status = Column(Integer, default=OrderStatus.NEW.value)
+    order_status = Column(SqlEnum(OrderStatus), default=OrderStatus.NEW)
     paid = Column(Boolean, default=False)
 
     def __init__(self, order_id: str, user_id: str, pizzas: List['Pizza'], address: str):
@@ -54,14 +54,14 @@ class Order(Base):
 class OrderPizza(Base):
     """Вспомогательная таблица для связи заказов и пицц"""
     __tablename__ = 'order_pizza'
-    order_id = Column(String(20), ForeignKey('orders.order_id'), primary_key=True)
-    pizza_id = Column(String(20), ForeignKey('pizzas.pizza_id'), primary_key=True)
+    order_id = Column(String(40), ForeignKey('orders.order_id'), primary_key=True)
+    pizza_id = Column(String(40), ForeignKey('pizzas.pizza_id'), primary_key=True)
 
 
 class BasePizza(Base):
     """Представляет основную пиццу из меню с её свойствами"""
     __tablename__ = 'base_pizzas'
-    base_pizza_id = Column(String(20), primary_key=True)
+    base_pizza_id = Column(String(40), primary_key=True)
     name = Column(String(50))
     description = Column(String(255))
     price_rub = Column(Float)
@@ -76,9 +76,9 @@ class BasePizza(Base):
 class Pizza(Base):
     """Представляет пиццу для заказа (основная пицца из меню + дополнительные ингредиенты)"""
     __tablename__ = 'pizzas'
-    pizza_id = Column(String(20), primary_key=True)
-    base_pizza_id = Column(String(20))
-    topping_ids = Column(ARRAY(String(20)))
+    pizza_id = Column(String(40), primary_key=True)
+    base_pizza_id = Column(String(40))
+    topping_ids = Column(ARRAY(String(40)))
 
     def __init__(self, pizza_id: str, base_pizza_id: str, topping_ids: List[str]):
         self.pizza_id = pizza_id
@@ -89,7 +89,7 @@ class Pizza(Base):
 class Topping(Base):
     """Класс для работы с дополнительными ингредиентами к пицце"""
     __tablename__ = 'toppings'
-    topping_id = Column(String(20), primary_key=True)
+    topping_id = Column(String(40), primary_key=True)
     name = Column(String(50))
     description = Column(String(255))
     price_rub = Column(Float)

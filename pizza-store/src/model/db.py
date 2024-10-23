@@ -31,6 +31,9 @@ class Db:
     def save_base_pizza(self, base_pizza: BasePizza):
         pass
 
+    def save_pizza(self, pizza: Pizza):
+        pass
+
 
 class InMemDb(Db):
     def __init__(self):
@@ -70,6 +73,10 @@ class InMemDb(Db):
         if base_pizza.base_pizza_id not in self.base_pizzas:
             self.base_pizzas[base_pizza.base_pizza_id] = base_pizza
 
+    def save_pizza(self, pizza: Pizza):
+        if pizza.pizza_id not in self.pizzas:
+            self.pizzas[pizza.pizza_id] = pizza
+
 
 class SqlDb(Db):
     def __init__(self, session: Session):
@@ -104,4 +111,8 @@ class SqlDb(Db):
 
     def save_base_pizza(self, base_pizza: BasePizza):
         self.session.add(base_pizza)
+        self.session.commit()
+
+    def save_pizza(self, pizza: Pizza):
+        self.session.add(pizza)
         self.session.commit()

@@ -1,7 +1,10 @@
-from service.pizza_service import PizzaService
-from model.db import InMemDb
-from model.entities import Pizza, Topping, BasePizza, OrderStatus
+import pytest
 import uuid
+from service.pizza_service import PizzaService
+from model.db import InMemDb, SqlDb
+from model.entities import Pizza, Topping, BasePizza, OrderStatus, Base
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
 
 def deliver_order(pizza_service: PizzaService, order_id: str):
@@ -22,9 +25,22 @@ def deliver_order(pizza_service: PizzaService, order_id: str):
     assert final_status == OrderStatus.DELIVERED, "Заказ не доставлен"
 
 
-def test_pizza_sevice_happy_path():
+@pytest.fixture(scope='module')
+def db_session():
+    engine = create_engine("postgresql://maslova:maslova_pw@localhost/pizza_service_db")
+    Session = sessionmaker(bind=engine)
+    session = Session()
+    yield session
+    session.close()
 
-    db = InMemDb()
+
+@pytest.mark.parametrize("db_class", [InMemDb, SqlDb])
+def test_pizza_sevice_happy_path(db_class, request):
+    if db_class == SqlDb:
+        db_session = request.getfixturevalue('db_session')
+        db = SqlDb(db_session)
+    else:
+        db = InMemDb()
 
     pepperoni = BasePizza(
         str(uuid.uuid4()),
@@ -51,11 +67,13 @@ def test_pizza_sevice_happy_path():
         pepperoni.base_pizza_id,
         [pinapple.topping_id]
     )
+    db.save_pizza(pepperoni_pinapple)
+
     pizza_service.add_pizza(order.order_id, pepperoni_pinapple)
     pizza_service.update_address(order.order_id, "Russia, Moscow, Krasnaya ploschad', 1")
     pizza_service.update_order_status(order.order_id, OrderStatus.ORDERED)
 
-    deliver_order(order.order_id)
+    deliver_order(pizza_service, order.order_id)
 
     price = pizza_service.calc_price(order.order_id)
     expected_price = pepperoni.price_rub + pinapple.price_rub

@@ -1,5 +1,5 @@
 from model.entities import Order, User, Pizza, OrderStatus
-from model.db import Db
+from model.db import Db, SqlDb
 import uuid
 
 
@@ -61,13 +61,22 @@ class PizzaService:
             raise ValueError("Заказ не найден")
 
         price = 0.0
-        for id in order.pizza_ids:
-            pizza = self.db.find_pizza(id)
+        for pizza_order in order.pizzas:
+            pizza = self.db.find_pizza(pizza_order.pizza_id)
+            if not pizza:
+                raise ValueError(f"Пицца с id {pizza_order.pizza_id} не найдена")
+
             base_pizza = self.db.find_base_pizza(pizza.base_pizza_id)
+            if not base_pizza:
+                raise ValueError(f"Базовая пицца с id {pizza.base_pizza_id} не найдена")
+
             price += base_pizza.price_rub
-            for i in pizza.topping_ids:
-                topping = self.db.find_topping(i)
+            for topping_id in pizza.topping_ids:
+                topping = self.db.find_topping(topping_id)
+                if not topping:
+                    raise ValueError(f"Топпинг с id {topping_id} не найден")
                 price += topping.price_rub
+
         return price
 
     def on_payment_complete(self, order_id: str):
