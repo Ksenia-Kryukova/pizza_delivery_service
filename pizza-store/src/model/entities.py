@@ -36,7 +36,8 @@ class Order(Base):
     """Класс для хранения информации о заказе"""
     __tablename__ = 'orders'
     order_id = Column(String(40), primary_key=True)
-    user_id = Column(String(40))
+    user_id = Column(String(40), ForeignKey('users.user_id'))
+    user = relationship("User")
     pizzas = relationship("Pizza", secondary="order_pizza")
     address = Column(String(100))
     order_status = Column(SqlEnum(OrderStatus), default=OrderStatus.NEW)
@@ -77,13 +78,22 @@ class Pizza(Base):
     """Представляет пиццу для заказа (основная пицца из меню + дополнительные ингредиенты)"""
     __tablename__ = 'pizzas'
     pizza_id = Column(String(40), primary_key=True)
-    base_pizza_id = Column(String(40))
+    base_pizza_id = Column(String(40), ForeignKey('base_pizzas.base_pizza_id'))
+    base_pizza = relationship("BasePizza")
     topping_ids = Column(ARRAY(String(40)))
+    toppings = relationship("Topping", secondary="pizza_topping")
 
     def __init__(self, pizza_id: str, base_pizza_id: str, topping_ids: List[str]):
         self.pizza_id = pizza_id
         self.base_pizza_id = base_pizza_id
         self.topping_ids = topping_ids
+
+
+class PizzaTopping(Base):
+    """Вспомогательная таблица для связи пиццы и топпингов"""
+    __tablename__ = 'pizza_topping'
+    pizza_id = Column(String(40), ForeignKey('pizzas.pizza_id'), primary_key=True)
+    topping_id = Column(String(40), ForeignKey('toppings.topping_id'), primary_key=True)
 
 
 class Topping(Base):

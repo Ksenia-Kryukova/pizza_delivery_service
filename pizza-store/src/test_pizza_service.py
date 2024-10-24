@@ -2,9 +2,8 @@ import pytest
 import uuid
 from service.pizza_service import PizzaService
 from model.db import InMemDb, SqlDb
-from model.entities import Pizza, Topping, BasePizza, OrderStatus, Base
+from model.entities import Pizza, Topping, BasePizza, OrderStatus
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 
 
 def deliver_order(pizza_service: PizzaService, order_id: str):
@@ -25,20 +24,11 @@ def deliver_order(pizza_service: PizzaService, order_id: str):
     assert final_status == OrderStatus.DELIVERED, "Заказ не доставлен"
 
 
-@pytest.fixture(scope='module')
-def db_session():
-    engine = create_engine("postgresql://maslova:maslova_pw@localhost/pizza_service_db")
-    Session = sessionmaker(bind=engine)
-    session = Session()
-    yield session
-    session.close()
-
-
 @pytest.mark.parametrize("db_class", [InMemDb, SqlDb])
-def test_pizza_sevice_happy_path(db_class, request):
+def test_pizza_sevice_happy_path(db_class):
     if db_class == SqlDb:
-        db_session = request.getfixturevalue('db_session')
-        db = SqlDb(db_session)
+        engine = create_engine("postgresql://maslova:maslova_pw@localhost/pizza_service_db")
+        db = SqlDb(engine)
     else:
         db = InMemDb()
 
