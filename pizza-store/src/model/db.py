@@ -1,5 +1,5 @@
 from .entities import User, Order, Pizza, Topping, BasePizza
-from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy.orm import Session, sessionmaker, joinedload
 from sqlalchemy.engine import Engine
 
 
@@ -90,7 +90,9 @@ class SqlDb(Db):
 
     def find_order(self, order_id: str) -> Order:
         with self.Session() as session:
-            return session.query(Order).filter(Order.order_id == order_id).one_or_none()
+            order = session.query(Order).options(joinedload(Order.pizzas)).filter(Order.order_id == order_id).one_or_none()
+            session.refresh(order)
+            return order
 
     def find_pizza(self, pizza_id: str) -> Pizza:
         with self.Session() as session:
@@ -108,23 +110,28 @@ class SqlDb(Db):
         with self.Session() as session:
             session.add(user)
             session.commit()
+            session.refresh(user)
 
     def save_order(self, order: Order):
         with self.Session() as session:
             session.add(order)
             session.commit()
+            session.refresh(order)
 
     def save_topping(self, topping: Topping):
         with self.Session() as session:
             session.add(topping)
             session.commit()
+            session.refresh(topping)
 
     def save_base_pizza(self, base_pizza: BasePizza):
         with self.Session() as session:
             session.add(base_pizza)
             session.commit()
+            session.refresh(base_pizza)
 
     def save_pizza(self, pizza: Pizza):
         with self.Session() as session:
             session.add(pizza)
             session.commit()
+            session.refresh(pizza)

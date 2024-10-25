@@ -1,5 +1,5 @@
 from model.entities import Order, User, Pizza, OrderStatus
-from model.db import Db, SqlDb
+from model.db import Db
 import uuid
 
 
@@ -8,18 +8,14 @@ class PizzaService:
         self.db = db
 
     def create_order(self, user_id: str) -> Order:
-        try:
-            user = self.db.find_user(user_id)
-            if not user:
-                raise ValueError("Пользователь не найден")
+        user = self.db.find_user(user_id)
+        if not user:
+            raise ValueError("Пользователь не найден")
 
-            order_id = str(uuid.uuid4())
-            new_order = Order(order_id, user_id, [], "")
-            self.db.save_order(new_order)
-            return new_order
-        except Exception as e:
-            print("Ошибка при создании заказа: %s", e)
-            raise
+        order_id = str(uuid.uuid4())
+        new_order = Order(order_id, user_id, [], "")
+        self.db.save_order(new_order)
+        return new_order
 
     def add_user(self, name: str, phone_number: int) -> User:
         user_id = str(uuid.uuid4())
