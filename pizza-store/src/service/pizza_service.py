@@ -33,14 +33,15 @@ class PizzaService:
         order.pizzas.append(pizza)
         self.db.save_order(order)
 
-    def remove_pizza(self, order_id: str, pizza_id: str):
+    def remove_pizza(self, order_id: str, pizza: Pizza):
         order = self.db.find_order(order_id)
         if not order:
             raise ValueError("Заказ не найден")
         if order.order_status != OrderStatus.NEW:
             raise ValueError("Заказ нельзя изменять после подтверждения")
-        if pizza_id in order.pizza_ids:
-            order.pizza_ids.remove(pizza_id)
+
+        if any(p.pizza_id == pizza.pizza_id for p in order.pizzas):
+            order.pizzas = [p for p in order.pizzas if p.pizza_id != pizza.pizza_id]
             self.db.save_order(order)
         else:
             raise ValueError("Пицца не найдена в заказе")
