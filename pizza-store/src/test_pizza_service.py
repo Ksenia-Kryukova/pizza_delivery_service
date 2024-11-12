@@ -1,9 +1,20 @@
 import pytest
 import uuid
+import os
 from service.pizza_service import PizzaService
 from model.db import InMemDb, SqlDb
 from model.entities import Pizza, Topping, BasePizza, OrderStatus
 from sqlalchemy import create_engine
+from dotenv import load_dotenv
+
+
+load_dotenv()
+
+username = os.getenv("USERNAME")
+password = os.getenv("PASSWORD")
+host = os.getenv("HOST")
+db_name = os.getenv("DB_NAME")
+port = os.getenv("PORT")
 
 
 def deliver_order(pizza_service: PizzaService, order_id: str):
@@ -27,7 +38,7 @@ def deliver_order(pizza_service: PizzaService, order_id: str):
 @pytest.mark.parametrize("db_class", [InMemDb, SqlDb])
 def test_pizza_sevice_happy_path(db_class):
     if db_class == SqlDb:
-        engine = create_engine("postgresql://maslova:maslova_pw@localhost/pizza_service_db")
+        engine = create_engine(f"postgresql://{username}:{password}@{host}:{port}/{db_name}")
         db = SqlDb(engine)
     else:
         db = InMemDb()

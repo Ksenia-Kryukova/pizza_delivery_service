@@ -1,9 +1,19 @@
+import os
 from fastapi import FastAPI, APIRouter
 from model.db import SqlDb
 from service.pizza_service import PizzaService
 from model.entities import OrderStatus
 from sqlalchemy import create_engine
+from dotenv import load_dotenv
 
+
+load_dotenv()
+
+username = os.getenv("USERNAME")
+password = os.getenv("PASSWORD")
+host = os.getenv("HOST")
+db_name = os.getenv("DB_NAME")
+port = os.getenv("PORT")
 
 app = FastAPI()
 
@@ -13,7 +23,7 @@ def hello_world():
     return "Hello, world"
 
 
-engine = create_engine("postgresql://maslova:maslova_pw@localhost/pizza_service_db")
+engine = create_engine(f"postgresql://{username}:{password}@{host}:{port}/{db_name}")
 db = SqlDb(engine)
 pizza_service = PizzaService(db)
 
