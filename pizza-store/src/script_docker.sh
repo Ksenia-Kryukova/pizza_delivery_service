@@ -5,7 +5,7 @@ set -e
 
 # Запуск тестов
 echo "Запуск тестов"
-export PYTHONPATH=/home/kryukova/Pizza_delivery_service/pizza-store/src
+export PYTHONPATH="$(dirname "$0")"
 pytest -v test_pizza_service.py
 
 # Сборка docker-образа
