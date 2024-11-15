@@ -3,7 +3,7 @@ import uuid
 import os
 from service.pizza_service import PizzaService
 from model.db import InMemDb, SqlDb
-from model.entities import Pizza, Topping, BasePizza, OrderStatus
+from model.entities import Pizza, Topping, BasePizza, OrderStatus, Base
 from sqlalchemy import create_engine
 from dotenv import load_dotenv
 
@@ -40,6 +40,7 @@ def test_pizza_sevice_happy_path(db_class):
     if db_class == SqlDb:
         engine = create_engine(f"postgresql://{username}:{password}@{host}:{port}/{db_name}")
         db = SqlDb(engine)
+        Base.metadata.create_all(engine)
     else:
         db = InMemDb()
 

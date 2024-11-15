@@ -2,7 +2,7 @@ import os
 from fastapi import FastAPI, APIRouter
 from model.db import SqlDb
 from service.pizza_service import PizzaService
-from model.entities import OrderStatus
+from model.entities import OrderStatus, Base
 from sqlalchemy import create_engine
 from dotenv import load_dotenv
 
@@ -25,6 +25,7 @@ def hello_world():
 
 engine = create_engine(f"postgresql://{username}:{password}@{host}:{port}/{db_name}")
 db = SqlDb(engine)
+Base.metadata.create_all(engine)
 pizza_service = PizzaService(db)
 
 router = APIRouter()
